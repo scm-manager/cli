@@ -31,7 +31,7 @@ func ReadConfig() *Configuration {
 	if err != nil {
 		log.Fatal("Error parsing config file", err)
 	}
-
+	config.ApiKey = ReadApiKey(config.Username)
 	return config
 }
 

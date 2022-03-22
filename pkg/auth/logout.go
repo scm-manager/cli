@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/zalando/go-keyring"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -24,12 +23,7 @@ func Logout() {
 	if err != nil {
 		log.Fatal("Could not revoke api key on server: ", err)
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Fatal("Could not resolve response body", err)
-		}
-	}(res.Body)
+	defer res.Body.Close()
 
 	// Delete local config
 	filePath := ResolveConfigFilePath()

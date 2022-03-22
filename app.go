@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/scm-manager/cli/pkg/auth"
+	"github.com/scm-manager/cli/pkg/command"
 	"os"
 )
 
@@ -21,6 +22,6 @@ func main() {
 		auth.Logout()
 		fmt.Println("Successfully logged out")
 	} else {
-
+		command.ExecuteCommand()
 	}
 }

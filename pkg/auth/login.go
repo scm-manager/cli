@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/term"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -34,12 +33,7 @@ func Login() {
 	if err != nil {
 		log.Fatal("Could not send login request: ", err)
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Fatal("Could not resolve response body", err)
-		}
-	}(res.Body)
+	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal("Could not read login response", err)
