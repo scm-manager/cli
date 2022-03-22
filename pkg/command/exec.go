@@ -1,10 +1,11 @@
 package command
 
 import (
+	"bufio"
 	"bytes"
-	"fmt"
+	"encoding/json"
 	"github.com/scm-manager/cli/pkg/auth"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -22,18 +23,45 @@ func ExecuteCommand() {
 		}
 	}
 	req.URL.RawQuery = queryString.Encode()
-	req.SetBasicAuth(config.Username, config.ApiKey)
+	req.Header.Add("Authorization", "Bearer "+config.ApiKey)
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal("Could not send login request: ", err)
 	}
 	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal("Could not read login response", err)
+
+	reader := bufio.NewReader(res.Body)
+
+	for {
+		line, err := reader.ReadBytes('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Fatal("Error reading response body", err)
+		}
+		response := &ExecuteResponse{}
+		err = json.Unmarshal(line, response)
+		if err != nil {
+			log.Fatal("Could not decode json response", err)
+		}
+		if response.Out != "" {
+			_, err := os.Stdout.WriteString(response.Out)
+			if err != nil {
+				log.Fatal("Could not write to stdout", err)
+			}
+		}
+		if response.Err != "" {
+			_, err := os.Stderr.WriteString(response.Err)
+			if err != nil {
+				log.Fatal("Could not write to stderr", err)
+			}
+		}
 	}
+}
 
-	fmt.Println(string(body))
-
+type ExecuteResponse struct {
+	Out string
+	Err string
 }
