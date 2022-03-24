@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/scm-manager/cli/pkg/auth"
 	"github.com/scm-manager/cli/pkg/command"
+	"log"
 	"os"
 )
 
@@ -12,6 +13,7 @@ func main() {
 	if config == nil {
 		if len(os.Args) > 2 && os.Args[1] == "login" {
 			auth.Login()
+			return
 		} else {
 			fmt.Println("Please login first calling \"scm login {server-url}\"")
 			os.Exit(1)
@@ -22,6 +24,14 @@ func main() {
 		auth.Logout()
 		fmt.Println("Successfully logged out")
 	} else {
-		command.ExecuteCommand()
+		executor, err := command.CreateDefaultExecutor(config)
+		if err != nil {
+			log.Fatal("Failed to create default executor", err)
+		}
+		exitCode, err := executor.Execute(os.Args[1:]...)
+		if err != nil {
+			log.Fatal("Failed to execute command", err)
+		}
+		os.Exit(exitCode)
 	}
 }
