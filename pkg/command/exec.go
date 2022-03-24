@@ -1,11 +1,12 @@
 package command
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
+	"github.com/Xuanwo/go-locale"
 	"github.com/scm-manager/cli/pkg/auth"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -24,6 +25,12 @@ func ExecuteCommand() {
 	}
 	req.URL.RawQuery = queryString.Encode()
 	req.Header.Add("Authorization", "Bearer "+config.ApiKey)
+	language, err := locale.Detect()
+	if err != nil {
+		log.Fatal("Could not detect client locale")
+	}
+	baseLang, _ := language.Base()
+	req.Header.Add("Accept-Language", baseLang.String())
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
@@ -31,20 +38,26 @@ func ExecuteCommand() {
 	}
 	defer res.Body.Close()
 
-	reader := bufio.NewReader(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal("Could not read response", err)
+	}
+	//TODO Remove after implementation
+	//fmt.Println(string(data))
+	decoder := json.NewDecoder(bytes.NewBuffer(data))
+	_, err = decoder.Token()
+	if err != nil {
+		log.Fatal("Could not read token from json", err)
+	}
 
-	for {
-		line, err := reader.ReadBytes('\n')
+	for decoder.More() {
+		response := &ExecuteResponse{}
+		err := decoder.Decode(response)
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
 			log.Fatal("Error reading response body", err)
-		}
-		response := &ExecuteResponse{}
-		err = json.Unmarshal(line, response)
-		if err != nil {
-			log.Fatal("Could not decode json response", err)
 		}
 		if response.Out != "" {
 			_, err := os.Stdout.WriteString(response.Out)
