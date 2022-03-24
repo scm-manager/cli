@@ -58,10 +58,14 @@ func ExecuteCommand() {
 				log.Fatal("Could not write to stderr", err)
 			}
 		}
+		if response.Exit != 0 {
+			os.Exit(response.Exit)
+		}
 	}
 }
 
 type ExecuteResponse struct {
-	Out string
-	Err string
+	Out  string
+	Err  string
+	Exit int
 }
