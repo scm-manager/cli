@@ -13,31 +13,33 @@ import (
 )
 
 func ExecuteCommand() {
-	config := auth.ReadConfig()
+	req := createRequest()
+	res := sendRequest(req)
+	defer res.Body.Close()
+	processResponse(res)
+}
 
-	payloadBuf := new(bytes.Buffer)
-	req, _ := http.NewRequest("POST", config.ServerUrl+"/api/v2/cli/exec", payloadBuf)
-	queryString := req.URL.Query()
-	for i, arg := range os.Args {
-		if i > 0 {
-			queryString.Add("args", arg)
-		}
-	}
-	req.URL.RawQuery = queryString.Encode()
-	req.Header.Add("Authorization", "Bearer "+config.ApiKey)
-	language, err := locale.Detect()
-	if err != nil {
-		log.Fatal("Could not detect client locale")
-	}
-	baseLang, _ := language.Base()
-	req.Header.Add("Accept-Language", baseLang.String())
+func sendRequest(req *http.Request) *http.Response {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal("Could not send login request: ", err)
 	}
-	defer res.Body.Close()
+	return res
+}
 
+func createRequest() *http.Request {
+	config := auth.ReadConfig()
+
+	payloadBuf := new(bytes.Buffer)
+	req, _ := http.NewRequest("POST", config.ServerUrl+"/api/v2/cli/exec", payloadBuf)
+	req.Header.Add("Authorization", "Bearer "+config.ApiKey)
+	setCommandVarArgs(req)
+	setRequestLocale(req)
+	return req
+}
+
+func processResponse(res *http.Response) {
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal("Could not read response", err)
@@ -75,6 +77,25 @@ func ExecuteCommand() {
 			os.Exit(response.Exit)
 		}
 	}
+}
+
+func setCommandVarArgs(req *http.Request) {
+	queryString := req.URL.Query()
+	for i, arg := range os.Args {
+		if i > 0 {
+			queryString.Add("args", arg)
+		}
+	}
+	req.URL.RawQuery = queryString.Encode()
+}
+
+func setRequestLocale(req *http.Request) {
+	language, err := locale.Detect()
+	if err != nil {
+		log.Fatal("Could not detect client locale")
+	}
+	baseLang, _ := language.Base()
+	req.Header.Add("Accept-Language", baseLang.String())
 }
 
 type ExecuteResponse struct {
