@@ -18,7 +18,7 @@ func main() {
 		}
 	}
 
-	if os.Args[1] == "logout" {
+	if len(os.Args) > 1 && os.Args[1] == "logout" {
 		auth.Logout()
 		fmt.Println("Successfully logged out")
 	} else {
