@@ -7,23 +7,29 @@ import (
 	"fmt"
 	"golang.org/x/term"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 )
 
-func Login() {
+func Login() error {
 	// Collect login parameters
 	serverUrl := os.Args[2]
-	username, password := ReadCredentials()
+	username, password, err := ReadCredentials()
+	if err != nil {
+		return err
+	}
 
 	// Send login request
-	loginRequest := LoginRequest{Hostname: ResolveHostname()}
-	payloadBuf := new(bytes.Buffer)
-	err := json.NewEncoder(payloadBuf).Encode(loginRequest)
+	hostname, err := ResolveHostname()
 	if err != nil {
-		log.Fatal("Could not encode hostname: ", err)
+		return err
+	}
+	loginRequest := LoginRequest{Hostname: hostname}
+	payloadBuf := new(bytes.Buffer)
+	err = json.NewEncoder(payloadBuf).Encode(loginRequest)
+	if err != nil {
+		return fmt.Errorf("could not encode hostname: %w", err)
 	}
 	req, _ := http.NewRequest("POST", serverUrl+"/api/v2/cli/login", payloadBuf)
 	req.Header.Add("Content-Type", "application/json")
@@ -31,47 +37,55 @@ func Login() {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Could not send login request: ", err)
+		return fmt.Errorf("could not send login request: %w", err)
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatal("Could not read login response", err)
+		return fmt.Errorf("could not read login response: %w", err)
 	}
 
 	// Create .scm-cli.json config file
-	configFilePath := ResolveConfigFilePath()
+	configFilePath, err := ResolveConfigFilePath()
+	if err != nil {
+		return err
+	}
 	file, err := os.Create(configFilePath)
 	if err != nil {
-		log.Fatal("Could not create cli config file", err)
+		return fmt.Errorf("could not create cli config file: %w", err)
 	}
 	configuration := Configuration{ServerUrl: serverUrl, ApiKey: string(body), Username: username}
 	jsonConfig, err := json.Marshal(configuration)
 	if err != nil {
-		log.Fatal("Could not marshal config json", err)
+		return fmt.Errorf("could not marshal config json: %w", err)
 	}
 	_, err = file.Write(jsonConfig)
 	if err != nil {
-		log.Fatal("Could not write config to file", err)
+		return fmt.Errorf("could not write config to file: %w", err)
+
 	}
 
 	// Store api key to keyring
-	StoreApiKey(username, configuration.ApiKey)
+	err = StoreApiKey(username, configuration.ApiKey)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func ReadCredentials() (string, string) {
+func ReadCredentials() (string, string, error) {
 	r := bufio.NewReader(os.Stdin)
 	fmt.Print("Username: ")
 	username, err := r.ReadString('\n')
 	if err != nil {
-		log.Fatal("Could not read username", err)
+		return "", "", fmt.Errorf("could not read username: %w", err)
 	}
 	fmt.Print("Password: ")
 	password, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
-		log.Fatal("Could not read password", err)
+		return "", "", fmt.Errorf("could not read password: %w", err)
 	}
-	return strings.TrimSpace(username), string(password)
+	return strings.TrimSpace(username), string(password), nil
 }
 
 type LoginRequest struct {

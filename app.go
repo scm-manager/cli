@@ -9,10 +9,16 @@ import (
 )
 
 func main() {
-	config := auth.ReadConfig()
+	config, err := auth.ReadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if config == nil {
 		if len(os.Args) > 2 && os.Args[1] == "login" {
-			auth.Login()
+			err := auth.Login()
+			if err != nil {
+				log.Fatal(err)
+			}
 			return
 		} else {
 			fmt.Println("Please login first calling \"scm login {server-url}\"")
@@ -21,7 +27,10 @@ func main() {
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == "logout" {
-		auth.Logout()
+		err := auth.Logout()
+		if err != nil {
+			log.Fatal(err)
+		}
 		fmt.Println("Successfully logged out")
 	} else {
 		executor, err := command.CreateDefaultExecutor(config)

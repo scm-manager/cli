@@ -2,55 +2,63 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 )
 
-func ReadConfig() *Configuration {
-	configFilePath := ResolveConfigFilePath()
+func ReadConfig() (*Configuration, error) {
+	configFilePath, err := ResolveConfigFilePath()
+	if err != nil {
+		return nil, fmt.Errorf("could not resolve config file path: %w", err)
+	}
 
-	_, err := os.Stat(configFilePath)
+	_, err = os.Stat(configFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil
+			return nil, nil
 		} else {
-			log.Fatal("Could not read config file", err)
+			return nil, fmt.Errorf("could not find config file: %w", err)
 		}
 	}
 
 	data, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
-		log.Fatal("Error reading file", err)
+		return nil, fmt.Errorf("could not read config file: %w", err)
 	}
 
 	config := &Configuration{}
 
 	err = json.Unmarshal(data, config)
 	if err != nil {
-		log.Fatal("Error parsing config file", err)
+		return nil, fmt.Errorf("could not parse config file: %w", err)
+
 	}
-	config.ApiKey = ReadApiKey(config.Username)
-	return config
+	key, err := ReadApiKey(config.Username)
+	if err != nil {
+		return config, err
+	}
+	config.ApiKey = key
+	return config, err
 }
 
-func ResolveConfigFilePath() string {
+func ResolveConfigFilePath() (string, error) {
 	// Read config (server url, username) => .scm-cli.json
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatal("Could not find home directory", err)
+		return "", fmt.Errorf("could not find home directory: %w", err)
 	}
-
-	return path.Join(homeDir, ".scm-cli.json")
+	return path.Join(homeDir, ".scm-cli.json"), nil
 }
 
-func ResolveHostname() string {
+func ResolveHostname() (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Fatal("Could not resolve hostname: ", err)
+		return "", fmt.Errorf("could not resolve hostname:  %w", err)
+
 	}
-	return hostname
+	return hostname, nil
 }
 
 type Configuration struct {
