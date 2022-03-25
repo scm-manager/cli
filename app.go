@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/scm-manager/cli/pkg/api"
-	"github.com/scm-manager/cli/pkg/auth"
 	"github.com/scm-manager/cli/pkg/command"
 	"github.com/scm-manager/cli/pkg/config"
+	"github.com/scm-manager/cli/pkg/terminal"
 	"log"
 	"os"
 )
@@ -40,7 +40,7 @@ func readConfig() *config.Configuration {
 func login() {
 	// Collect login parameters
 	serverUrl := os.Args[2]
-	username, password, err := auth.ReadCredentials()
+	username, password, err := terminal.ReadCredentials()
 	if err != nil {
 		log.Fatalf("Could not read credentials: %v", err)
 	}
