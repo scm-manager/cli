@@ -3,7 +3,7 @@ package command
 import (
 	"bytes"
 	"fmt"
-	"github.com/scm-manager/cli/pkg/auth"
+	"github.com/scm-manager/cli/pkg/config"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -12,13 +12,14 @@ import (
 
 func TestExecutor_Execute(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "[{\"out\":\"Hello World\"}]")
+		_, err := fmt.Fprintf(w, "[{\"out\":\"Hello World\"}]")
+		assert.NoError(t, err)
 	}))
 	defer server.Close()
 	var stdout bytes.Buffer
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(&stdout, nil, nil, config)
+	executor := CreateExecutor(&stdout, nil, nil, configuration)
 	exitCode, err := executor.Execute("some", "command")
 
 	assert.NoError(t, err)
@@ -31,13 +32,14 @@ func TestExecutor_ExecuteCheckForArgs(t *testing.T) {
 		err := r.ParseForm()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"some", "command"}, r.Form["args"])
-		fmt.Fprintf(w, "[{\"out\":\"Hello World\"}]")
+		_, err = fmt.Fprintf(w, "[{\"out\":\"Hello World\"}]")
+		assert.NoError(t, err)
 	}))
 	defer server.Close()
 	var stdout bytes.Buffer
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(&stdout, nil, nil, config)
+	executor := CreateExecutor(&stdout, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
 
 	assert.NoError(t, err)
@@ -46,13 +48,14 @@ func TestExecutor_ExecuteCheckForArgs(t *testing.T) {
 func TestExecutor_ExecuteCheckWithApiKey(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "Bearer secret", r.Header.Get("Authorization"))
-		fmt.Fprintf(w, "[{\"out\":\"Hello World\"}]")
+		_, err := fmt.Fprintf(w, "[{\"out\":\"Hello World\"}]")
+		assert.NoError(t, err)
 	}))
 	defer server.Close()
 	var stdout bytes.Buffer
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(&stdout, nil, nil, config)
+	executor := CreateExecutor(&stdout, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
 
 	assert.NoError(t, err)
@@ -60,13 +63,14 @@ func TestExecutor_ExecuteCheckWithApiKey(t *testing.T) {
 
 func TestExecutor_ExecuteCheckStderr(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "[{\"err\":\"Missing entity\"}]")
+		_, err := fmt.Fprintf(w, "[{\"err\":\"Missing entity\"}]")
+		assert.NoError(t, err)
 	}))
 	defer server.Close()
 	var stderr bytes.Buffer
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(nil, &stderr, nil, config)
+	executor := CreateExecutor(nil, &stderr, nil, configuration)
 	_, err := executor.Execute("some", "command")
 
 	assert.NoError(t, err)
@@ -75,12 +79,13 @@ func TestExecutor_ExecuteCheckStderr(t *testing.T) {
 
 func TestExecutor_ExecuteCheckExitCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "[{\"exit\":42}]")
+		_, err := fmt.Fprintf(w, "[{\"exit\":42}]")
+		assert.NoError(t, err)
 	}))
 	defer server.Close()
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(nil, nil, nil, config)
+	executor := CreateExecutor(nil, nil, nil, configuration)
 	exitCode, err := executor.Execute("some", "command")
 
 	assert.NoError(t, err)
@@ -91,12 +96,13 @@ func TestExecutor_ExecuteCheckLocale(t *testing.T) {
 	t.Setenv("LANGUAGE", "es_MX")
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "es", r.Header.Get("Accept-Language"))
-		fmt.Fprintf(w, "[{\"exit\":0}]")
+		_, err := fmt.Fprintf(w, "[{\"exit\":0}]")
+		assert.NoError(t, err)
 	}))
 	defer server.Close()
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(nil, nil, nil, config)
+	executor := CreateExecutor(nil, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
 
 	assert.NoError(t, err)
@@ -107,18 +113,18 @@ func TestExecutor_ExecuteCheckHttpError(t *testing.T) {
 		http.Error(w, "Not found", http.StatusNotFound)
 	}))
 	defer server.Close()
-	config := &auth.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
-	executor := CreateExecutor(nil, nil, nil, config)
+	executor := CreateExecutor(nil, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
 
 	assert.ErrorContains(t, err, "HTTP Error 404")
 }
 
 func TestCreateDefaultExecutor(t *testing.T) {
-	config := &auth.Configuration{ServerUrl: "myServer", Username: "scmadmin", ApiKey: "secret"}
+	configuration := &config.Configuration{ServerUrl: "myServer", Username: "scmadmin", ApiKey: "secret"}
 
-	executor, err := CreateDefaultExecutor(config)
+	executor, err := CreateDefaultExecutor(configuration)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, executor)

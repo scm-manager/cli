@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Xuanwo/go-locale"
-	"github.com/scm-manager/cli/pkg/auth"
+	"github.com/scm-manager/cli/pkg/config"
 	"io"
 	"net/http"
 	"os"
@@ -16,11 +16,11 @@ type ExecuteResponse struct {
 	Exit int
 }
 
-func CreateExecutor(stdout io.Writer, stderr io.Writer, stdin io.Reader, config *auth.Configuration) *Executor {
+func CreateExecutor(stdout io.Writer, stderr io.Writer, stdin io.Reader, config *config.Configuration) *Executor {
 	return &Executor{stdout: stdout, stderr: stderr, stdin: stdin, config: config}
 }
 
-func CreateDefaultExecutor(config *auth.Configuration) (*Executor, error) {
+func CreateDefaultExecutor(config *config.Configuration) (*Executor, error) {
 	stdin, err := createStdin()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ type Executor struct {
 	stdout io.Writer
 	stderr io.Writer
 	stdin  io.Reader
-	config *auth.Configuration
+	config *config.Configuration
 }
 
 func (e *Executor) Execute(args ...string) (int, error) {
