@@ -2,11 +2,12 @@ package auth
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/zalando/go-keyring"
 	"testing"
 )
 
 func TestStoreApiKey(t *testing.T) {
-
+	keyring.MockInit()
 	username := "scmadmin"
 	apiKey := "secret_key"
 	err := StoreApiKey(username, apiKey)

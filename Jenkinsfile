@@ -14,6 +14,7 @@ pipeline {
 
   environment {
     HOME = "${env.WORKSPACE}"
+   	LANGUAGE = "en"
   }
 
   stages {
