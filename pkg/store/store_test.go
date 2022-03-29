@@ -34,23 +34,23 @@ func TestStore(t *testing.T) {
 	assert.Equal(t, "user", config.Username)
 }
 
-func TestDeleteIfConfigNotExist(t *testing.T) {
+func TestRemoveIfConfigNotExist(t *testing.T) {
 	filePath := path.Join(t.TempDir(), "testpath")
 
-	err := deleteFilePath(filePath)
+	err := removeFilePath(filePath)
 	assert.Error(t, err)
 
 	_, err = os.Stat(filePath)
 	assert.True(t, os.IsNotExist(err))
 }
 
-func TestDelete(t *testing.T) {
+func TestRemove(t *testing.T) {
 	filePath := path.Join(t.TempDir(), "testpath")
 
 	err := writeToFilePath(filePath, &pkg.Configuration{ServerUrl: "server", Username: "user"})
 	assert.NoError(t, err)
 
-	err = deleteFilePath(filePath)
+	err = removeFilePath(filePath)
 	assert.NoError(t, err)
 
 	_, err = os.Stat(filePath)
@@ -71,14 +71,14 @@ func TestStoreApiKey(t *testing.T) {
 	assert.Equal(t, apiKey, storedKey)
 }
 
-func TestDeleteApiKey(t *testing.T) {
+func TestRemoveApiKey(t *testing.T) {
 	keyname := "scm-cli"
 	username := "scmadmin"
 	apiKey := "secret_key"
 	err := keyring.Set(keyname, username, apiKey)
 	assert.NoError(t, err)
 
-	err = deleteApiKey(keyname, username)
+	err = removeApiKey(keyname, username)
 	assert.NoError(t, err)
 
 	key, err := keyring.Get(keyname, username)

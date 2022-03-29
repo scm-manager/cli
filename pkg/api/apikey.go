@@ -44,7 +44,7 @@ func Create(serverUrl string, username string, password string) (string, error) 
 }
 
 func Remove(apiKeyName string, serverUrl string, username string, apiKey string) error {
-	// Delete api key on server
+	// Remove api key on server
 	payloadBuf := new(bytes.Buffer)
 	err := json.NewEncoder(payloadBuf).Encode("")
 	hostname, err := resolveHostname()

@@ -75,28 +75,28 @@ func Write(configuration *pkg.Configuration) error {
 	return writeToFilePath(configFilePath, configuration)
 }
 
-func deleteFilePath(filePath string) error {
+func removeFilePath(filePath string) error {
 	config, err := readFromFilePath(filePath)
 	if err != nil {
 		return err
 	}
 	err = os.Remove(filePath)
 	if err != nil {
-		return fmt.Errorf("could not delete config file: %w", err)
+		return fmt.Errorf("could not remove config file: %w", err)
 	}
-	err = deleteApiKey(api.KeyName, config.Username)
+	err = removeApiKey(api.KeyName, config.Username)
 	if err != nil {
-		return fmt.Errorf("could not delete api key from keystore: %w", err)
+		return fmt.Errorf("could not remove api key from keystore: %w", err)
 	}
 	return nil
 }
 
-func Delete() error {
+func Remove() error {
 	configFilePath, err := resolveConfigFilePath()
 	if err != nil {
 		return err
 	}
-	return deleteFilePath(configFilePath)
+	return removeFilePath(configFilePath)
 }
 
 func storeApiKey(apiKeyName string, username string, apiKey string) error {
@@ -115,12 +115,12 @@ func readApiKey(apiKeyName string, username string) (string, error) {
 	return apiKey, nil
 }
 
-func deleteApiKey(apiKeyName string, username string) error {
-	// Delete stored api key
+func removeApiKey(apiKeyName string, username string) error {
+	// Remove stored api key
 	err := keyring.Delete(apiKeyName, username)
 	if err != nil {
 		if err != nil {
-			return fmt.Errorf("could not delete stored api key: %w", err)
+			return fmt.Errorf("could not remove stored api key: %w", err)
 		}
 	}
 	return nil

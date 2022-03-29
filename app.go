@@ -62,9 +62,9 @@ func logout(configuration *pkg.Configuration) {
 	if err != nil {
 		log.Fatalf("Could not remove api key from server: %v", err)
 	}
-	err = store.Delete()
+	err = store.Remove()
 	if err != nil {
-		log.Fatalf("Could not delete local config: %v", err)
+		log.Fatalf("Could not remove local config: %v", err)
 	}
 	fmt.Println("Successfully logged out")
 }
