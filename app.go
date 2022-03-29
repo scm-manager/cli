@@ -48,23 +48,23 @@ func login() {
 	// Create api key
 	apiKey, err := api.Create(serverUrl, username, password)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not create api key: %v", err)
 	}
 	// Write Config
 	err = store.Write(&pkg.Configuration{ServerUrl: serverUrl, Username: username, ApiKey: apiKey})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not write config to store: %v", err)
 	}
 }
 
 func logout(configuration *pkg.Configuration) {
 	err := api.Remove(api.KeyName, configuration.ServerUrl, configuration.Username, configuration.ApiKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not remove api key from server: %v", err)
 	}
 	err = store.Delete()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not delete local config: %v", err)
 	}
 	fmt.Println("Successfully logged out")
 }
@@ -72,11 +72,11 @@ func logout(configuration *pkg.Configuration) {
 func executeCommand(configuration *pkg.Configuration) {
 	executor, err := command.CreateDefaultExecutor(configuration)
 	if err != nil {
-		log.Fatal("Failed to create default executor", err)
+		log.Fatalf("Failed to create default executor: %v", err)
 	}
 	exitCode, err := executor.Execute(os.Args[1:]...)
 	if err != nil {
-		log.Fatal("Failed to execute command", err)
+		log.Fatalf("Failed to execute command: %v", err)
 	}
 	os.Exit(exitCode)
 }
