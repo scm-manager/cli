@@ -1,6 +1,7 @@
-package config
+package store
 
 import (
+	"github.com/scm-manager/cli/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/zalando/go-keyring"
 	"os"
@@ -25,7 +26,7 @@ func TestRead(t *testing.T) {
 
 func TestStore(t *testing.T) {
 	filePath := path.Join(t.TempDir(), "testpath")
-	err := storeToFilePath(filePath, &Configuration{ServerUrl: "server", Username: "user"})
+	err := writeToFilePath(filePath, &pkg.Configuration{ServerUrl: "server", Username: "user"})
 	assert.NoError(t, err)
 
 	config, err := readFromFilePath(filePath)
@@ -46,7 +47,7 @@ func TestDeleteIfConfigNotExist(t *testing.T) {
 func TestDelete(t *testing.T) {
 	filePath := path.Join(t.TempDir(), "testpath")
 
-	err := storeToFilePath(filePath, &Configuration{ServerUrl: "server", Username: "user"})
+	err := writeToFilePath(filePath, &pkg.Configuration{ServerUrl: "server", Username: "user"})
 	assert.NoError(t, err)
 
 	err = deleteFilePath(filePath)

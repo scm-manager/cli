@@ -1,8 +1,9 @@
-package config
+package store
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/scm-manager/cli/pkg"
 	"github.com/scm-manager/cli/pkg/api"
 	"github.com/zalando/go-keyring"
 	"io/ioutil"
@@ -10,13 +11,7 @@ import (
 	"path"
 )
 
-type Configuration struct {
-	ServerUrl string
-	Username  string
-	ApiKey    string `json:"-"`
-}
-
-func readFromFilePath(filePath string) (*Configuration, error) {
+func readFromFilePath(filePath string) (*pkg.Configuration, error) {
 	_, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -29,7 +24,7 @@ func readFromFilePath(filePath string) (*Configuration, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not read config file: %w", err)
 	}
-	configuration := &Configuration{}
+	configuration := &pkg.Configuration{}
 	err = json.Unmarshal(data, configuration)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse config file: %w", err)
@@ -43,7 +38,7 @@ func readFromFilePath(filePath string) (*Configuration, error) {
 	return configuration, err
 }
 
-func Read() (*Configuration, error) {
+func Read() (*pkg.Configuration, error) {
 	configFilePath, err := resolveConfigFilePath()
 	if err != nil {
 		return nil, err
@@ -51,7 +46,7 @@ func Read() (*Configuration, error) {
 	return readFromFilePath(configFilePath)
 }
 
-func storeToFilePath(filePath string, configuration *Configuration) error {
+func writeToFilePath(filePath string, configuration *pkg.Configuration) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("could not create cli config file: %w", err)
@@ -72,12 +67,12 @@ func storeToFilePath(filePath string, configuration *Configuration) error {
 	return nil
 }
 
-func Store(configuration *Configuration) error {
+func Write(configuration *pkg.Configuration) error {
 	configFilePath, err := resolveConfigFilePath()
 	if err != nil {
 		return err
 	}
-	return storeToFilePath(configFilePath, configuration)
+	return writeToFilePath(configFilePath, configuration)
 }
 
 func deleteFilePath(filePath string) error {

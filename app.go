@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/scm-manager/cli/pkg"
 	"github.com/scm-manager/cli/pkg/api"
 	"github.com/scm-manager/cli/pkg/command"
-	"github.com/scm-manager/cli/pkg/config"
+	"github.com/scm-manager/cli/pkg/store"
 	"github.com/scm-manager/cli/pkg/terminal"
 	"log"
 	"os"
@@ -29,8 +30,8 @@ func main() {
 	}
 }
 
-func readConfig() *config.Configuration {
-	configuration, err := config.Read()
+func readConfig() *pkg.Configuration {
+	configuration, err := store.Read()
 	if err != nil {
 		log.Fatalf("Could not read configuration: %v", err)
 	}
@@ -50,25 +51,25 @@ func login() {
 		log.Fatal(err)
 	}
 	// Write Config
-	err = config.Store(&config.Configuration{ServerUrl: serverUrl, Username: username, ApiKey: apiKey})
+	err = store.Write(&pkg.Configuration{ServerUrl: serverUrl, Username: username, ApiKey: apiKey})
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func logout(configuration *config.Configuration) {
+func logout(configuration *pkg.Configuration) {
 	err := api.Remove(api.KeyName, configuration.ServerUrl, configuration.Username, configuration.ApiKey)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = config.Delete()
+	err = store.Delete()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Successfully logged out")
 }
 
-func executeCommand(configuration *config.Configuration) {
+func executeCommand(configuration *pkg.Configuration) {
 	executor, err := command.CreateDefaultExecutor(configuration)
 	if err != nil {
 		log.Fatal("Failed to create default executor", err)

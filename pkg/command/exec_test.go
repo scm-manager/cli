@@ -3,7 +3,7 @@ package command
 import (
 	"bytes"
 	"fmt"
-	"github.com/scm-manager/cli/pkg/config"
+	"github.com/scm-manager/cli/pkg"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +17,7 @@ func TestExecutor_Execute(t *testing.T) {
 	}))
 	defer server.Close()
 	var stdout bytes.Buffer
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(&stdout, nil, nil, configuration)
 	exitCode, err := executor.Execute("some", "command")
@@ -37,7 +37,7 @@ func TestExecutor_ExecuteCheckForArgs(t *testing.T) {
 	}))
 	defer server.Close()
 	var stdout bytes.Buffer
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(&stdout, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
@@ -53,7 +53,7 @@ func TestExecutor_ExecuteCheckWithApiKey(t *testing.T) {
 	}))
 	defer server.Close()
 	var stdout bytes.Buffer
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(&stdout, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
@@ -68,7 +68,7 @@ func TestExecutor_ExecuteCheckStderr(t *testing.T) {
 	}))
 	defer server.Close()
 	var stderr bytes.Buffer
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(nil, &stderr, nil, configuration)
 	_, err := executor.Execute("some", "command")
@@ -83,7 +83,7 @@ func TestExecutor_ExecuteCheckExitCode(t *testing.T) {
 		assert.NoError(t, err)
 	}))
 	defer server.Close()
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(nil, nil, nil, configuration)
 	exitCode, err := executor.Execute("some", "command")
@@ -100,7 +100,7 @@ func TestExecutor_ExecuteCheckLocale(t *testing.T) {
 		assert.NoError(t, err)
 	}))
 	defer server.Close()
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(nil, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
@@ -113,7 +113,7 @@ func TestExecutor_ExecuteCheckHttpError(t *testing.T) {
 		http.Error(w, "Not found", http.StatusNotFound)
 	}))
 	defer server.Close()
-	configuration := &config.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: server.URL, Username: "scmadmin", ApiKey: "secret"}
 
 	executor := CreateExecutor(nil, nil, nil, configuration)
 	_, err := executor.Execute("some", "command")
@@ -122,7 +122,7 @@ func TestExecutor_ExecuteCheckHttpError(t *testing.T) {
 }
 
 func TestCreateDefaultExecutor(t *testing.T) {
-	configuration := &config.Configuration{ServerUrl: "myServer", Username: "scmadmin", ApiKey: "secret"}
+	configuration := &pkg.Configuration{ServerUrl: "myServer", Username: "scmadmin", ApiKey: "secret"}
 
 	executor, err := CreateDefaultExecutor(configuration)
 
