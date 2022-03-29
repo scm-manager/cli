@@ -29,7 +29,7 @@ func Create(serverUrl string, username string, password string, apiKeyName strin
 	}
 	defer res.Body.Close()
 	if res.StatusCode >= 400 {
-		return "", fmt.Errorf("could not login  api key. Server returned status code: %d", res.StatusCode)
+		return "", fmt.Errorf("could not create new api key on server. Server returned status code: %d", res.StatusCode)
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
