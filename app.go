@@ -60,7 +60,8 @@ func login() {
 func logout(configuration *pkg.Configuration) {
 	err := api.Remove(api.KeyName, configuration.ServerUrl, configuration.Username, configuration.ApiKey)
 	if err != nil {
-		log.Fatalf("Could not remove api key from server: %v", err)
+		fmt.Printf("Failed to remove api key from server: %v", err)
+		fmt.Println("We suggest you remove the api key manually on your SCM-Manager server.")
 	}
 	err = store.Remove()
 	if err != nil {
