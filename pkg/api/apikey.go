@@ -6,24 +6,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 type CreateApiKeyRequest struct {
-	Hostname string `json:"hostname"`
+	ApiKey string `json:"apiKey"`
 }
 
-var KeyName = "scm-cli"
-
-func Create(serverUrl string, username string, password string) (string, error) {
-	// Create api key on server
-	hostname, err := resolveHostname()
-	if err != nil {
-		return "", err
-	}
-	loginRequest := CreateApiKeyRequest{Hostname: hostname}
+func Create(serverUrl string, username string, password string, apiKeyName string) (string, error) {
+	loginRequest := CreateApiKeyRequest{ApiKey: apiKeyName}
 	payloadBuf := new(bytes.Buffer)
-	err = json.NewEncoder(payloadBuf).Encode(loginRequest)
+	err := json.NewEncoder(payloadBuf).Encode(loginRequest)
 	if err != nil {
 		return "", fmt.Errorf("could not encode hostname: %w", err)
 	}
@@ -36,6 +28,9 @@ func Create(serverUrl string, username string, password string) (string, error) 
 		return "", fmt.Errorf("could not send login request: %w", err)
 	}
 	defer res.Body.Close()
+	if res.StatusCode >= 400 {
+		return "", fmt.Errorf("could not login  api key. Server returned status code: %d", res.StatusCode)
+	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return "", fmt.Errorf("could not read login response: %w", err)
@@ -43,19 +38,13 @@ func Create(serverUrl string, username string, password string) (string, error) 
 	return string(body), nil
 }
 
-func Remove(apiKeyName string, serverUrl string, username string, apiKey string) error {
+func Remove(serverUrl string, apiKey string, apiKeyName string) error {
 	// Remove api key on server
-	payloadBuf := new(bytes.Buffer)
-	err := json.NewEncoder(payloadBuf).Encode("")
-	hostname, err := resolveHostname()
+	req, err := http.NewRequest("DELETE", serverUrl+"/api/v2/cli/logout/"+apiKeyName, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not create delete request: %w", err)
 	}
-	req, _ := http.NewRequest("DELETE", serverUrl+"/api/v2/cli/logout/"+hostname, payloadBuf)
 	req.Header.Add("Content-Type", "application/json")
-	if err != nil {
-		return err
-	}
 	req.Header.Add("Authorization", "Bearer "+apiKey)
 	client := &http.Client{}
 	res, err := client.Do(req)
@@ -63,14 +52,8 @@ func Remove(apiKeyName string, serverUrl string, username string, apiKey string)
 		return fmt.Errorf("could not revoke api key on server: %w", err)
 	}
 	defer res.Body.Close()
-	return nil
-}
-
-func resolveHostname() (string, error) {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return "", fmt.Errorf("could not resolve hostname:  %w", err)
-
+	if res.StatusCode >= 400 {
+		return fmt.Errorf("could not remove api key. Server returned status code: %d", res.StatusCode)
 	}
-	return hostname, nil
+	return nil
 }

@@ -30,6 +30,14 @@ func main() {
 	}
 }
 
+func createApiKeyName() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return "scm-cli"
+	}
+	return "scm-cli-" + hostname
+}
+
 func readConfig() *pkg.Configuration {
 	configuration, err := store.Read()
 	if err != nil {
@@ -46,7 +54,7 @@ func login() {
 		log.Fatalf("Could not read credentials: %v", err)
 	}
 	// Create api key
-	apiKey, err := api.Create(serverUrl, username, password)
+	apiKey, err := api.Create(serverUrl, username, password, createApiKeyName())
 	if err != nil {
 		log.Fatalf("Could not create api key: %v", err)
 	}
@@ -58,7 +66,7 @@ func login() {
 }
 
 func logout(configuration *pkg.Configuration) {
-	err := api.Remove(api.KeyName, configuration.ServerUrl, configuration.Username, configuration.ApiKey)
+	err := api.Remove(configuration.ServerUrl, configuration.ApiKey, createApiKeyName())
 	if err != nil {
 		fmt.Printf("Failed to remove api key from server: %v", err)
 		fmt.Println("We suggest you remove the api key manually on your SCM-Manager server.")
