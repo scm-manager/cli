@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/scm-manager/cli/pkg"
-	"github.com/scm-manager/cli/pkg/api"
 	"github.com/zalando/go-keyring"
 	"io/ioutil"
 	"os"
 	"path"
 )
+
+const keyName = "scm-cli"
 
 func readFromFilePath(filePath string) (*pkg.Configuration, error) {
 	_, err := os.Stat(filePath)
@@ -30,7 +31,7 @@ func readFromFilePath(filePath string) (*pkg.Configuration, error) {
 		return nil, fmt.Errorf("could not parse config file: %w", err)
 
 	}
-	key, err := readApiKey(api.KeyName, configuration.Username)
+	key, err := readApiKey(keyName, configuration.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func writeToFilePath(filePath string, configuration *pkg.Configuration) error {
 		return fmt.Errorf("could not write config to file: %w", err)
 
 	}
-	err = storeApiKey(api.KeyName, configuration.Username, configuration.ApiKey)
+	err = storeApiKey(keyName, configuration.Username, configuration.ApiKey)
 	if err != nil {
 		return fmt.Errorf("could not store api key to keyring: %w", err)
 	}
@@ -84,7 +85,7 @@ func removeFilePath(filePath string) error {
 	if err != nil {
 		return fmt.Errorf("could not remove config file: %w", err)
 	}
-	err = removeApiKey(api.KeyName, config.Username)
+	err = removeApiKey(keyName, config.Username)
 	if err != nil {
 		return fmt.Errorf("could not remove api key from keystore: %w", err)
 	}
