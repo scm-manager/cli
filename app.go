@@ -9,6 +9,7 @@ import (
 	"github.com/scm-manager/cli/pkg/terminal"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -49,6 +50,10 @@ func readConfig() *pkg.Configuration {
 func login() {
 	// Collect login parameters
 	serverUrl := os.Args[2]
+	if strings.HasSuffix(serverUrl, "/") {
+		serverUrl = serverUrl[0 : len(serverUrl)-1]
+	}
+
 	username, password, err := terminal.ReadCredentials()
 	if err != nil {
 		log.Fatalf("Could not read credentials: %v", err)
