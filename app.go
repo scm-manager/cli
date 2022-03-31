@@ -55,19 +55,29 @@ func login() {
 	}
 
 	username, password, err := terminal.ReadCredentials()
+	// line break after Password:
+	fmt.Println()
 	if err != nil {
-		log.Fatalf("Could not read credentials: %v", err)
+		printLoginError("Could not read credentials: %v", err)
 	}
+
 	// Create api key
 	apiKey, err := api.Create(serverUrl, username, password, createApiKeyName())
 	if err != nil {
-		log.Fatalf("Could not create api key: %v", err)
+		printLoginError("Could not create api key: %v", err)
 	}
 	// Write Config
 	err = store.Write(&pkg.Configuration{ServerUrl: serverUrl, Username: username, ApiKey: apiKey})
 	if err != nil {
-		log.Fatalf("Could not write config to store: %v", err)
+		printLoginError("Could not write config to store: %v", err)
 	}
+}
+
+func printLoginError(format string, err error) {
+
+	// empty line
+	fmt.Println()
+	log.Fatalf(format, err)
 }
 
 func logout(configuration *pkg.Configuration) {
