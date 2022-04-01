@@ -47,7 +47,7 @@ pipeline {
         }
       }
       steps {
-        sh 'go build -a -tags netgo -ldflags \'-w -extldflags "-static"\' -o scm app.go'
+        sh 'go build -a -tags netgo -ldflags \'-w -extldflags "-static"\' -o scm scm.go'
       }
     }
 
