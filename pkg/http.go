@@ -3,7 +3,7 @@ package pkg
 import (
 	"fmt"
 	"net/http"
-	"os"
+	"runtime"
 )
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
@@ -42,7 +42,7 @@ type userAgentTransport struct {
 }
 
 func (t *userAgentTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	ua := createUserAgent(version, os.Getenv("GOOS"), os.Getenv("GOARCH"), commitHash, buildTime)
+	ua := createUserAgent(version, runtime.GOOS, runtime.GOARCH, commitHash, buildTime)
 	r.Header.Set("User-Agent", ua)
 	return http.DefaultTransport.RoundTrip(r)
 }
