@@ -3,24 +3,33 @@ package pkg
 import (
 	"fmt"
 	"net/http"
+	"os"
 )
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
-// scm-cli/1.0.0 (githash; isodate)
+// name/version (os arch; commithash; buildtime)
 
 const cliName = "scm-cli"
 
 var (
-	version   string = "x.y.z"
-	gitHash   string
-	buildTime string
+	version    string = "x.y.z"
+	commitHash string
+	buildTime  string
 )
 
-func createUserAgent(version, gitHash, buildTime string) string {
+func createDevUserAgent(version, osName, arch string) string {
+	return fmt.Sprintf("%s/%s (%s %s)", cliName, version, osName, arch)
+}
+
+func createProdUserAgent(version, osName, arch, gitHash, buildTime string) string {
+	return fmt.Sprintf("%s/%s (%s %s; %s; %s)", cliName, version, osName, arch, gitHash, buildTime)
+}
+
+func createUserAgent(version, osName, arch, gitHash, buildTime string) string {
 	if gitHash != "" && buildTime != "" {
-		return fmt.Sprintf("%s/%s (%s; %s)", cliName, version, gitHash, buildTime)
+		return createProdUserAgent(version, osName, arch, gitHash, buildTime)
 	}
-	return fmt.Sprintf("%s/%s", cliName, version)
+	return createDevUserAgent(version, osName, arch)
 }
 
 func CreateHttpClient() *http.Client {
@@ -32,7 +41,8 @@ func CreateHttpClient() *http.Client {
 type userAgentTransport struct {
 }
 
-func (ua *userAgentTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	r.Header.Set("User-Agent", createUserAgent(version, gitHash, buildTime))
+func (t *userAgentTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	ua := createUserAgent(version, os.Getenv("GOOS"), os.Getenv("GOARCH"), commitHash, buildTime)
+	r.Header.Set("User-Agent", ua)
 	return http.DefaultTransport.RoundTrip(r)
 }
