@@ -74,8 +74,6 @@ func login() {
 }
 
 func printLoginError(format string, err error) {
-
-	// empty line
 	fmt.Println()
 	log.Fatalf(format, err)
 }
