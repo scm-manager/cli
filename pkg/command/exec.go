@@ -55,7 +55,9 @@ func (e *Executor) Execute(args ...string) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(res.Body)
 	return e.processResponse(res)
 }
 
