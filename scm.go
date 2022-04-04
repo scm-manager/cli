@@ -19,7 +19,7 @@ func main() {
 			login()
 			return
 		} else {
-			fmt.Println("Please login first calling \"scm login {server-url}\"")
+			fmt.Println("Please login first calling \"scm login 'https://{server-url:port}/scm'\"")
 			os.Exit(1)
 		}
 	}
@@ -71,6 +71,7 @@ func login() {
 	if err != nil {
 		printLoginError("Could not write config to store: %v", err)
 	}
+	fmt.Println("Login successful")
 }
 
 func printLoginError(format string, err error) {
