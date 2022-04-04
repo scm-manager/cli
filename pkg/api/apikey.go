@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/scm-manager/cli/pkg"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -23,7 +24,7 @@ func Create(serverUrl string, username string, password string, apiKeyName strin
 	req, _ := http.NewRequest("POST", serverUrl+"/api/v2/cli/login", payloadBuf)
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(username, password)
-	client := &http.Client{}
+	client := pkg.CreateHttpClient()
 	res, err := client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("could not send login request: %w", err)
@@ -49,7 +50,7 @@ func Remove(serverUrl string, apiKey string, apiKeyName string) error {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+apiKey)
-	client := &http.Client{}
+	client := pkg.CreateHttpClient()
 	res, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("could not revoke api key on server: %w", err)

@@ -62,7 +62,7 @@ func (e *Executor) Execute(args ...string) (int, error) {
 }
 
 func (e *Executor) sendRequest(req *http.Request) (*http.Response, error) {
-	client := &http.Client{}
+	client := pkg.CreateHttpClient()
 	res, err := client.Do(req)
 	if err != nil {
 		return res, fmt.Errorf("could not send execution request: %w", err)
