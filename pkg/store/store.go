@@ -52,6 +52,11 @@ func writeToFilePath(filePath string, configuration *pkg.Configuration) error {
 	if err != nil {
 		return fmt.Errorf("could not create cli config file: %w", err)
 	}
+
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
+
 	jsonConfig, err := json.Marshal(configuration)
 	if err != nil {
 		return fmt.Errorf("could not marshal config json: %w", err)
