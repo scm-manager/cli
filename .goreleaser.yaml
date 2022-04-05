@@ -148,3 +148,11 @@ checksum:
 signs:
   - artifacts: checksum
     stdin: '{{.Env.GPG_PASSWORD}}'
+    args:
+    - --no-tty
+    - --batch
+    - --yes
+    - --output
+    - "${signature}"
+    - "--detach-sign"
+    - "${artifact}"

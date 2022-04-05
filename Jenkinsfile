@@ -51,7 +51,7 @@ pipeline {
       }
     }
 
-	stage('Publish') {
+	  stage('Publish') {
       agent {
         docker {
           image 'golang:1.17.5'
@@ -59,8 +59,9 @@ pipeline {
         }
       }
       steps {
-        sh 'curl -sL https://git.io/goreleaser | bash'
-        sh 'goreleaser release --rm-dist --skip-publish --skip-validate'
+        withPublishEnvironment {
+       	  sh 'curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist --skip-publish --skip-validate'
+        }
       }
 	}
 
@@ -81,4 +82,19 @@ String version
 String computeVersion() {
   def commitHashShort = sh(returnStdout: true, script: 'git rev-parse --short HEAD')
   return "${new Date().format('yyyyMMddHHmm')}-${commitHashShort}".trim()
+}
+
+
+void withPublishEnvironment(Closure<Void> closure) {
+  withCredentials([
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'ORG_GRADLE_PROJECT_packagesScmManagerUsername', passwordVariable: 'ORG_GRADLE_PROJECT_packagesScmManagerPassword'),
+    file(credentialsId: 'oss-gpg-secring', variable: 'GPG_KEY_RING'),
+    usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD')
+  ]) {
+      sh "gpg --no-tty --batch --yes --import $GPG_KEY_RING"
+      sh "gpg --no-tty --batch --yes --export-secret-key $GPG_KEY_ID > gpg.key"
+      withEnv(["GPG_KEY_PATH=gpg.key", "NFPM_RPM_PASSPHRASE=$GPG_PASSWORD", "NFPM_DEB_PASSPHRASE=$GPG_PASSWORD"]) {
+      	closure.call()
+      }
+  }
 }
