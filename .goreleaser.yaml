@@ -42,3 +42,21 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+
+nfpms:
+  - package_name: scm-cli
+    vendor: Cloudogu GmbH
+    # TODO CLI subpage
+    homepage: https://scm-manager.org
+    maintainer: SCM Team <scm-team@cloudogu.com>
+    description: SCM-Manager CLI Client
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/bin
+    priority: extra
+    section: devel
+    rpm:
+      group: Development/Tools
+
