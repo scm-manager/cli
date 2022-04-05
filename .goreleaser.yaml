@@ -1,6 +1,9 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
-project_name: scm
+project_name: scm-cli
+release:
+  disable: true
+ 
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -23,7 +26,8 @@ builds:
       - -X github.com/scm-manager/cli/pkg.commitHash={{.Commit}}
       - -X github.com/scm-manager/cli/pkg.buildTime={{.Date}}
 archives:
-  - replacements:
+  - id: archives
+    replacements:
       darwin: Darwin
       linux: Linux
       windows: Windows
@@ -44,7 +48,23 @@ changelog:
       - '^test:'
 
 nfpms:
-  - package_name: scm-cli
+  - id: rpm
+    package_name: scm-cli
+    vendor: Cloudogu GmbH
+    # TODO CLI subpage
+    homepage: https://scm-manager.org
+    maintainer: SCM Team <scm-team@cloudogu.com>
+    description: SCM-Manager CLI Client
+    license: MIT
+    formats:
+      - rpm
+    bindir: /usr/bin
+    priority: extra
+    section: devel
+    rpm:
+      group: Development/Tools
+  - id: deb
+    package_name: scm-cli
     vendor: Cloudogu GmbH
     # TODO CLI subpage
     homepage: https://scm-manager.org
@@ -53,12 +73,9 @@ nfpms:
     license: MIT
     formats:
       - deb
-      - rpm
     bindir: /usr/bin
     priority: extra
     section: devel
-    rpm:
-      group: Development/Tools
 
 brews:
   - name: scm-cli
@@ -97,11 +114,25 @@ scoop:
 
 uploads:
   - name: default
-    exts:
-      - zip
-      - tar.gz
+    ids:
+    - archives
     mode: archive
     checksum: true
-    username: eduard.heimbuch@cloudogu.com
+    username: sebastian.sdorra@cloudogu.com
     method: PUT
     target: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Version}}
+  - name: rpm
+    ids:
+    - rpm
+    mode: archive
+    username: sebastian.sdorra@cloudogu.com
+    method: PUT
+    target: https://packages.scm-manager.org/repository/yum-v2-snapshots/
+  - name: deb
+    ids:
+    - deb
+    mode: archive
+    username: sebastian.sdorra@cloudogu.com
+    method: POST
+    custom_artifact_name: true
+    target: https://packages.scm-manager.org/repository/apt-v2-snapshots/
