@@ -149,9 +149,9 @@ signs:
   - artifacts: checksum
     stdin: '{{.Env.GPG_PASSWORD}}'
     args:
-    - --no-tty
     - --batch
-    - --yes
+    - -u
+    - "{{ .Env.GPG_KEY_ID }}"
     - --output
     - "${signature}"
     - "--detach-sign"
