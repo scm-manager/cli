@@ -3,7 +3,7 @@
 project_name: scm-cli
 release:
   disable: true
- 
+
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -147,3 +147,4 @@ checksum:
 
 signs:
   - artifacts: checksum
+    stdin: '{{.Env.GPG_PASSWORD}}'
