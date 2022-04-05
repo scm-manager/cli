@@ -60,3 +60,20 @@ nfpms:
     rpm:
       group: Development/Tools
 
+brews:
+  - name: scm-cli
+    tap:
+      owner: scm-manager
+      name: homebrew-tap
+      branch: master
+    url_template: https://packages.scm-manager.org/repository/cli/{{.Tag}}/{{.ArtifactName}}
+    commit_author:
+      name: CES Marvin
+      email: cesmarvin@cloudogu.com
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    folder: Formula
+    # TODO use subpage
+    homepage: https://scm-manager.org
+    description: SCM-Manager CLI Client
+    license: MIT
+    skip_upload: true
