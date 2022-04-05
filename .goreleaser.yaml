@@ -25,6 +25,7 @@ builds:
       - -X github.com/scm-manager/cli/pkg.version={{.Version}}
       - -X github.com/scm-manager/cli/pkg.commitHash={{.Commit}}
       - -X github.com/scm-manager/cli/pkg.buildTime={{.Date}}
+
 archives:
   - id: archives
     replacements:
@@ -38,13 +39,10 @@ archives:
       format: zip
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  name_template: "{{ incpatch .Version }}-SNAPSHOT"
+
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+  skip: true
 
 nfpms:
   - id: rpm
