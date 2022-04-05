@@ -60,7 +60,7 @@ pipeline {
       }
       steps {
         sh 'curl -sL https://git.io/goreleaser | bash'
-        sh 'goreleaser release --rm-dist --skip-publish'
+        sh 'goreleaser release --rm-dist --skip-publish --skip-validate'
       }
 	}
 
