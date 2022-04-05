@@ -92,8 +92,7 @@ void withPublishEnvironment(Closure<Void> closure) {
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD')
   ]) {
       sh "gpg --no-tty --batch --yes --import $GPG_KEY_RING"
-      sh "gpg --no-tty --batch --yes --export-secret-key $GPG_KEY_ID > gpg.key"
-      withEnv(["GPG_KEY_PATH=gpg.key", "NFPM_RPM_PASSPHRASE=$GPG_PASSWORD", "NFPM_DEB_PASSPHRASE=$GPG_PASSWORD"]) {
+      withEnv(["GPG_KEY_PATH=${GPG_KEY_RING}", "NFPM_RPM_PASSPHRASE=$GPG_PASSWORD", "NFPM_DEB_PASSPHRASE=$GPG_PASSWORD"]) {
       	closure.call()
       }
   }
