@@ -147,11 +147,13 @@ checksum:
 
 signs:
   - artifacts: checksum
-    stdin: '{{.Env.GPG_PASSWORD}}'
     args:
     - --batch
-    - -u
-    - "{{ .Env.GPG_KEY_ID }}"
+    - --pinentry-mode
+    - loopback
+    - --passphrase="{{ .Env.GPG_PASSWORD }}"
+    - --yes
+    - --armor
     - --output
     - "${signature}"
     - "--detach-sign"
