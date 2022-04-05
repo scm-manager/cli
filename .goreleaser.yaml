@@ -95,3 +95,13 @@ scoop:
   license: MIT
   skip_upload: true
 
+uploads:
+  - name: default
+    exts:
+      - zip
+      - tar.gz
+    mode: archive
+    checksum: true
+    username: eduard.heimbuch@cloudogu.com
+    method: PUT
+    target: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Version}}
