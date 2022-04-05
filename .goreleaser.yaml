@@ -151,7 +151,8 @@ signs:
     - --batch
     - --pinentry-mode
     - loopback
-    - --passphrase="{{ .Env.GPG_PASSWORD }}"
+    - --passphrase
+    - "{{ .Env.GPG_PASSWORD }}"
     - --yes
     - --armor
     - --output
