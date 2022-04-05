@@ -51,6 +51,18 @@ pipeline {
       }
     }
 
+	stage('Publish') {
+      agent {
+        docker {
+          image 'golang:1.17.5'
+          reuseNode true
+        }
+      }
+      steps {
+        sh 'curl -sL https://git.io/goreleaser | bash'
+        sh 'goreleaser release --rm-dist --skip-publish'
+      }
+	}
 
   }
 
