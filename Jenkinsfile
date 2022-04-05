@@ -51,7 +51,7 @@ pipeline {
       }
     }
 
-	  stage('Publish') {
+	stage('Publish') {
       agent {
         docker {
           image 'golang:1.17.5'
@@ -88,12 +88,12 @@ String computeVersion() {
 void withPublishEnvironment(Closure<Void> closure) {
   withCredentials([
     usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'ORG_GRADLE_PROJECT_packagesScmManagerUsername', passwordVariable: 'ORG_GRADLE_PROJECT_packagesScmManagerPassword'),
-    file(credentialsId: 'oss-gpg-secring', variable: 'GPG_KEY_RING'),
-    usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD')
+    file(credentialsId: 'oss-gpg-secring', variable: 'GPG_KEY_PATH'),
+    usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD'),
+    usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_RPM_KEY_ID', passwordVariable: 'NFPM_RPM_PASSPHRASE'),
+    usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_DEB_KEY_ID', passwordVariable: 'NFPM_DEB_PASSPHRASE'),
   ]) {
-      sh "gpg --no-tty --batch --yes --import $GPG_KEY_RING"
-      withEnv(["GPG_KEY_PATH=${GPG_KEY_RING}", "NFPM_RPM_PASSPHRASE=$GPG_PASSWORD", "NFPM_DEB_PASSPHRASE=$GPG_PASSWORD"]) {
-      	closure.call()
-      }
+      sh "gpg --no-tty --batch --yes --import $GPG_KEY_PATH"
+  	  closure.call()
   }
 }
