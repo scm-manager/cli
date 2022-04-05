@@ -17,6 +17,11 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -w -s
+      - -X github.com/scm-manager/cli/pkg.version={{.Version}}
+      - -X github.com/scm-manager/cli/pkg.commitHash={{.Commit}}
+      - -X github.com/scm-manager/cli/pkg.buildTime={{.Date}}
 archives:
   - replacements:
       darwin: Darwin
