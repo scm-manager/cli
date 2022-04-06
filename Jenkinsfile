@@ -115,7 +115,9 @@ pipeline {
 
 void withPublishEnvironment(Closure<Void> closure) {
   withCredentials([
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'ORG_GRADLE_PROJECT_packagesScmManagerUsername', passwordVariable: 'ORG_GRADLE_PROJECT_packagesScmManagerPassword'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEFAULT_USERNAME', passwordVariable: 'PACKAGES_DEFAULT_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_RPM_USERNAME', passwordVariable: 'PACKAGES_RPM_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEB_USERNAME', passwordVariable: 'PACKAGES_DEB_SECRET'),
     file(credentialsId: 'oss-gpg-secring', variable: 'GPG_KEY_PATH'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_RPM_KEY_ID', passwordVariable: 'NFPM_RPM_PASSPHRASE'),

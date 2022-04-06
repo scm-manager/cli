@@ -111,24 +111,24 @@ uploads:
     - archives
     mode: archive
     checksum: true
-    username: sebastian.sdorra@cloudogu.com
+    username: '{{ .Env.PACKAGES_DEFAULT_USERNAME }}'
     method: PUT
     target: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Version}}
   - name: rpm
     ids:
     - rpm
     mode: archive
-    username: sebastian.sdorra@cloudogu.com
+    username: '{{ .Env.PACKAGES_RPM_USERNAME }}'
     method: PUT
-    target: https://packages.scm-manager.org/repository/yum-v2-snapshots/
+    target: https://packages.scm-manager.org/repository/yum-v2-releases/
   - name: deb
     ids:
     - deb
     mode: archive
-    username: sebastian.sdorra@cloudogu.com
+    username: '{{ .Env.PACKAGES_DEB_USERNAME }}'
     method: POST
     custom_artifact_name: true
-    target: https://packages.scm-manager.org/repository/apt-v2-snapshots/
+    target: https://packages.scm-manager.org/repository/apt-v2-releases/
 
 checksum:
   name_template: 'checksums.txt'
