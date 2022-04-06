@@ -79,7 +79,7 @@ pipeline {
        	    sh 'VERSION=v1.7.0 curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist'
 		  }
 		  sh "go run pkg/build/upload/app.go dist/scm-cli.json scoop-bucket main scoops/scm-cli.json \"Update scoop scm-cli to ${releaseVersion}\""
-		  sh "go run pkg/build/upload/app.go dist/scm-cli.rb homebrew-tap main Formula/scm-cli.rb \"Update brew scm-cli to ${releaseVersion}\""
+		  sh "go run pkg/build/upload/app.go dist/scm-cli.rb homebrew-tap master Formula/scm-cli.rb \"Update brew scm-cli to ${releaseVersion}\""
 		  sh "go run pkg/build/descriptor/app.go dist > dist/release.yaml"
 		  sh "go run pkg/build/upload/app.go dist/release.yaml website master content/cli/releases/${hyphenatedReleaseVersion}.yaml \"Release cli version ${releaseVersion}\""
         }
@@ -115,9 +115,9 @@ pipeline {
 
 void withPublishEnvironment(Closure<Void> closure) {
   withCredentials([
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEFAULT_USERNAME', passwordVariable: 'PACKAGES_DEFAULT_SECRET'),
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_RPM_USERNAME', passwordVariable: 'PACKAGES_RPM_SECRET'),
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEB_USERNAME', passwordVariable: 'PACKAGES_DEB_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEFAULT_USERNAME', passwordVariable: 'UPLOAD_DEFAULT_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_RPM_USERNAME', passwordVariable: 'UPLOAD_RPM_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEB_USERNAME', passwordVariable: 'UPLOAD_DEB_SECRET'),
     file(credentialsId: 'oss-gpg-secring', variable: 'GPG_KEY_PATH'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_RPM_KEY_ID', passwordVariable: 'NFPM_RPM_PASSPHRASE'),
