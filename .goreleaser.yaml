@@ -1,6 +1,6 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
-project_name: scm-cli
+project_name: scm
 release:
   disable: true
 
@@ -28,6 +28,7 @@ builds:
 
 archives:
   - id: archives
+    name_template: "{{ .ProjectName }}-cli_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     replacements:
       darwin: Darwin
       linux: Linux
@@ -99,6 +100,7 @@ brews:
     skip_upload: true
 
 scoop:
+  name: scm-cli
   url_template: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Tag}}/{{.ArtifactName}}
   bucket:
     owner: scm-manager
