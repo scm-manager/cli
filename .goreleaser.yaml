@@ -1,0 +1,151 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+project_name: scm
+release:
+  disable: true
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -w -s
+      - -X github.com/scm-manager/cli/pkg.version={{.Version}}
+      - -X github.com/scm-manager/cli/pkg.commitHash={{.Commit}}
+      - -X github.com/scm-manager/cli/pkg.buildTime={{.Date}}
+
+archives:
+  - id: archives
+    name_template: "{{ .ProjectName }}-cli_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+    - goos: windows
+      format: zip
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-SNAPSHOT"
+
+changelog:
+  skip: true
+
+nfpms:
+  - id: rpm
+    package_name: scm-cli
+    vendor: Cloudogu GmbH
+    # TODO CLI subpage
+    homepage: https://scm-manager.org
+    maintainer: SCM Team <scm-team@cloudogu.com>
+    description: SCM-Manager CLI Client
+    license: MIT
+    formats:
+      - rpm
+    bindir: /usr/bin
+    priority: extra
+    section: devel
+    rpm:
+      group: Development/Tools
+      signature:
+        key_file: '{{ .Env.GPG_KEY_PATH }}'
+
+  - id: deb
+    package_name: scm-cli
+    vendor: Cloudogu GmbH
+    homepage: https://scm-manager.org/cli
+    maintainer: SCM Team <scm-team@cloudogu.com>
+    description: SCM-Manager CLI Client
+    license: MIT
+    formats:
+      - deb
+    bindir: /usr/bin
+    priority: extra
+    section: devel
+    deb:
+      signature:
+        key_file: '{{ .Env.GPG_KEY_PATH }}'
+
+brews:
+  - name: scm-cli
+    tap:
+      owner: scm-manager
+      name: homebrew-tap
+      branch: master
+    url_template: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Tag}}/{{.ArtifactName}}
+    homepage: https://scm-manager.org/cli
+    description: SCM-Manager CLI Client
+    license: MIT
+    skip_upload: true
+
+scoop:
+  name: scm-cli
+  url_template: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Tag}}/{{.ArtifactName}}
+  bucket:
+    owner: scm-manager
+    name: scoop-bucket
+    branch: main
+  homepage: https://scm-manager.org/cli
+  description: SCM-Manager CLI Client
+  license: MIT
+  skip_upload: true
+
+uploads:
+  - name: default
+    ids:
+    - archives
+    mode: archive
+    checksum: true
+    username: '{{ .Env.PACKAGES_DEFAULT_USERNAME }}'
+    method: PUT
+    target: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Version}}
+  - name: rpm
+    ids:
+    - rpm
+    mode: archive
+    username: '{{ .Env.PACKAGES_RPM_USERNAME }}'
+    method: PUT
+    target: https://packages.scm-manager.org/repository/yum-v2-releases/
+  - name: deb
+    ids:
+    - deb
+    mode: archive
+    username: '{{ .Env.PACKAGES_DEB_USERNAME }}'
+    method: POST
+    custom_artifact_name: true
+    target: https://packages.scm-manager.org/repository/apt-v2-releases/
+
+checksum:
+  name_template: 'checksums.txt'
+  ids:
+  - archives
+
+signs:
+  - artifacts: checksum
+    args:
+    - --batch
+    - --pinentry-mode
+    - loopback
+    - --passphrase
+    - "{{ .Env.GPG_PASSWORD }}"
+    - --yes
+    - --armor
+    - --output
+    - "${signature}"
+    - "--detach-sign"
+    - "${artifact}"
