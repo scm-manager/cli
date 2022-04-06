@@ -21,6 +21,49 @@ type GitHubUploadRequest struct {
 	Branch  string `json:"branch"`
 	Author  Person `json:"author"`
 	Content string `json:"content"`
+	Sha     string `json:"sha,omitempty"`
+}
+
+type GitHubContent struct {
+	Sha string
+}
+
+func receiveSha(token string, url string, branch string) string {
+	request, err := http.NewRequest("GET", url+"?ref="+branch, nil)
+	if err != nil {
+		log.Fatal("Failed to create get request", err)
+	}
+
+	request.Header.Set("Authorization", "Token "+token)
+	request.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		log.Fatal("Get request failed", err)
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode == 404 {
+		return ""
+	}
+
+	if response.StatusCode >= 300 {
+		log.Fatal("Get request failed with status code", response.StatusCode)
+	}
+
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal("failed to read response body")
+	}
+
+	content := GitHubContent{}
+	err = json.Unmarshal(data, &content)
+	if err != nil {
+		log.Fatal("Failed to unmarshal content", err)
+	}
+
+	return content.Sha
 }
 
 func main() {
@@ -50,7 +93,9 @@ func main() {
 		Branch:  branch,
 		Author:  Person{Name: "CES Marvin", Email: "cesmarvin@cloudogu.com"},
 		Content: content,
+		Sha:     receiveSha(token, url, branch),
 	}
+
 	data, err := json.Marshal(&uploadRequest)
 	if err != nil {
 		log.Fatal("Could not marshal json")
