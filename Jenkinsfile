@@ -122,6 +122,7 @@ void withPublishEnvironment(Closure<Void> closure) {
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_RPM_KEY_ID', passwordVariable: 'NFPM_RPM_PASSPHRASE'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_DEB_KEY_ID', passwordVariable: 'NFPM_DEB_PASSPHRASE'),
+    usernamePassword(credentialsId: 'cesmarvin-github', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_API_TOKEN'),
   ]) {
       sh 'gpg --no-tty --batch --yes --import $GPG_KEY_PATH'
   	  closure.call()
