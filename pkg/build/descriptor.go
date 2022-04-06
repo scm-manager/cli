@@ -37,6 +37,7 @@ type Package struct {
 type Descriptor struct {
 	Tag      string
 	Date     string
+	Type     string
 	Packages []Package
 }
 
@@ -90,7 +91,7 @@ func main() {
 	if err != nil {
 		log.Fatal("could not parse release date")
 	}
-	descriptor := Descriptor{Tag: metadata.Tag, Date: date.UTC().Format(time.RFC3339), Packages: packages}
+	descriptor := Descriptor{Tag: metadata.Tag, Date: date.UTC().Format(time.RFC3339), Type: "cli", Packages: packages}
 
 	bytes, err := yaml.Marshal(&descriptor)
 	if err != nil {
