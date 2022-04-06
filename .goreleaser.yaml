@@ -68,8 +68,7 @@ nfpms:
   - id: deb
     package_name: scm-cli
     vendor: Cloudogu GmbH
-    # TODO CLI subpage
-    homepage: https://scm-manager.org
+    homepage: https://scm-manager.org/cli
     maintainer: SCM Team <scm-team@cloudogu.com>
     description: SCM-Manager CLI Client
     license: MIT
@@ -89,13 +88,7 @@ brews:
       name: homebrew-tap
       branch: master
     url_template: https://packages.scm-manager.org/repository/scm-cli-releases/{{.Tag}}/{{.ArtifactName}}
-    commit_author:
-      name: CES Marvin
-      email: cesmarvin@cloudogu.com
-    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    folder: Formula
-    # TODO use subpage
-    homepage: https://scm-manager.org
+    homepage: https://scm-manager.org/cli
     description: SCM-Manager CLI Client
     license: MIT
     skip_upload: true
@@ -107,13 +100,7 @@ scoop:
     owner: scm-manager
     name: scoop-bucket
     branch: main
-  folder: Scoops
-  commit_author:
-    name: CES Marvin
-    email: cesmarvin@cloudogu.com
-  commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
-  # TODO use subpage
-  homepage: https://scm-manager.org
+  homepage: https://scm-manager.org/cli
   description: SCM-Manager CLI Client
   license: MIT
   skip_upload: true
