@@ -60,7 +60,9 @@ pipeline {
       }
       steps {
         withPublishEnvironment {
-       	  sh 'curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist --skip-publish --skip-validate'
+		  ansiColor('xterm') {
+       	    sh 'curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist --skip-publish --skip-validate'
+		  } 
         }
       }
 	}
