@@ -115,9 +115,9 @@ pipeline {
 
 void withPublishEnvironment(Closure<Void> closure) {
   withCredentials([
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEFAULT_USERNAME', passwordVariable: 'UPLOAD_DEFAULT_SECRET'),
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_RPM_USERNAME', passwordVariable: 'UPLOAD_RPM_SECRET'),
-    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'PACKAGES_DEB_USERNAME', passwordVariable: 'UPLOAD_DEB_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'UPLOAD_DEFAULT_USERNAME', passwordVariable: 'UPLOAD_DEFAULT_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'UPLOAD_RPM_USERNAME', passwordVariable: 'UPLOAD_RPM_SECRET'),
+    usernamePassword(credentialsId: 'maven.scm-manager.org', usernameVariable: 'UPLOAD_DEB_USERNAME', passwordVariable: 'UPLOAD_DEB_SECRET'),
     file(credentialsId: 'oss-gpg-secring', variable: 'GPG_KEY_PATH'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD'),
     usernamePassword(credentialsId: 'oss-keyid-and-passphrase', usernameVariable: 'NFPM_RPM_KEY_ID', passwordVariable: 'NFPM_RPM_PASSPHRASE'),
