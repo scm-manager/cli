@@ -81,9 +81,12 @@ func main() {
 		} else if a.Type == "Linux Package" {
 			packages = append(packages, Package{Os: a.Goos, Arch: a.Goarch, Type: filepath.Ext(a.Name)[1:]})
 		} else if a.Type == "Brew Tap" {
-			packages = append(packages, Package{Type: "homebrew"})
+			packages = append(packages, Package{Type: "homebrew", Os: "linux", Arch: "arm64"})
+			packages = append(packages, Package{Type: "homebrew", Os: "linux", Arch: "amd64"})
+			packages = append(packages, Package{Type: "homebrew", Os: "darwin", Arch: "arm64"})
+			packages = append(packages, Package{Type: "homebrew", Os: "darwin", Arch: "amd64"})
 		} else if a.Type == "Scoop Manifest" {
-			packages = append(packages, Package{Type: "scoop"})
+			packages = append(packages, Package{Type: "scoop", Os: "windows", Arch: "amd64"})
 		}
 	}
 
