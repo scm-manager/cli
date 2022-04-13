@@ -7,6 +7,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/zalando/go-keyring v0.2.1
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 require (
@@ -17,5 +18,4 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/sys v0.0.0-20211023085530-d6a326fbbf70 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
