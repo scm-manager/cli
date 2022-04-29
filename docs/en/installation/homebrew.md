@@ -1,10 +1,11 @@
 ---
-title: Mac OS X
-subtitle: SCM-Manager CLI Client installation on OS X using homebrew
+title: Homebrew
+subtitle: SCM-Manager CLI Client installation using homebrew
 displayToc: true
 ---
 
-To install the SCM-Manager CLI Client on OS X we offer a [Homebrew](https://brew.sh/) tap.
+# Homebrew
+To install the SCM-Manager CLI Client we offer a [Homebrew](https://brew.sh/) tap.
 This CLI Client does not work standalone but need a running SCM-Manager server.
 
 ## Quickstart
@@ -29,3 +30,4 @@ Now the CLI Client can be started:
 ```bash
 scm login {server_url}
 ```
+

@@ -9,7 +9,7 @@ displayToc: true
 The following code block will configure an apt repository for SCM-Manager CLI Client and install it.
 
 ```bash
-echo 'deb [arch=all] https://packages.scm-manager.org/repository/apt-v2-releases/ stable main' | sudo tee /etc/apt/sources.list.d/scm-manager.list
+echo "deb [arch=$(dpkg --print-architecture)] https://packages.scm-manager.org/repository/apt-v2-releases/ stable main" | sudo tee /etc/apt/sources.list.d/scm-manager.list
 sudo apt-key adv --recv-keys --keyserver hkps://keys.openpgp.org 0x975922F193B07D6E
 sudo apt-get update
 sudo apt-get install scm-cli
@@ -17,11 +17,12 @@ sudo apt-get install scm-cli
 
 ## Detailed installation
 
-To install SCM-Manager as a debian package (.deb), we have to configure an apt repository.
+To install SCM-Manager CLI as a debian package (.deb), we have to configure an apt repository.
+Replace `<arch>` with your system architecture. You can find it out by using `dpkg --print-architecture`.
 Create a file at `/etc/apt/sources.list.d/scm-manager.list` with the following content:
 
 ```text
-deb [arch=all] https://packages.scm-manager.org/repository/apt-v2-releases/ stable main
+deb [arch=<arch>] https://packages.scm-manager.org/repository/apt-v2-releases/ stable main
 ```
 
 This will add the apt repository of the SCM-Manager stable releases to the list of your apt repositories.
