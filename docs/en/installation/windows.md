@@ -31,6 +31,16 @@ You can start with the following command:
 scm.exe login {server_url}
 ```
 
+### Known problems with mintty (Git Bash, Cygwin)
+On some terminals under Windows, problems with stdin or stdout/stderr may occur. For example, when you try to log in,
+hitting enter on your username generates a second enter which prevents the possibility to enter your password and the
+login fails.
 
+Or, if you have previously logged in e.g. via Powershell, running the CLI won't create any output and the
+CLI won't exit.
 
+You can fix these problems by adding the following line to your `.minttyrc` file:
 
+```properties
+ConPTY=on
+```
