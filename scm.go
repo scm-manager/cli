@@ -64,7 +64,7 @@ func login() {
 	// Create api key
 	apiKey, err := api.Create(serverUrl, username, password, createApiKeyName())
 	if err != nil {
-		printLoginError("Could not create api key: %v", err)
+		printLoginError("Could not create api key: %v\nMost likely there is already an api key for the CLI client issued for this user/system. Please delete this api key manually on your scm server and retry to log in via the CLI.", err)
 	}
 	// Write Config
 	err = store.Write(&pkg.Configuration{ServerUrl: serverUrl, Username: username, ApiKey: apiKey})
@@ -83,6 +83,7 @@ func logout(configuration *pkg.Configuration) {
 	err := api.Remove(configuration.ServerUrl, configuration.ApiKey, createApiKeyName())
 	if err != nil {
 		fmt.Printf("Failed to remove api key from server: %v", err)
+		fmt.Println("")
 		fmt.Println("We suggest you remove the api key manually on your SCM-Manager server.")
 	}
 	err = store.Remove()
