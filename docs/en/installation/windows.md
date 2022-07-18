@@ -11,7 +11,7 @@ The following document describes the installation process for SCM-Manager CLI Cl
 ### Install via Scoop
 To install the CLI CLient via Scoop run the following commands:
 ```
-scoop-bucket add scm https://github.com/scm-manager/scoop-bucket
+scoop bucket add scm https://github.com/scm-manager/scoop-bucket
 scoop install scm-cli
 ```
 
