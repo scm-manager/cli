@@ -27,6 +27,9 @@ func main() {
 	if len(os.Args) > 1 && os.Args[1] == "logout" {
 		logout(configuration)
 	} else {
+		if len(os.Args) == 1 {
+			fmt.Println("Server: " + configuration.ServerUrl)
+		}
 		executeCommand(configuration)
 	}
 }
