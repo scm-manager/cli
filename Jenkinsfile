@@ -79,10 +79,10 @@ pipeline {
 		  ansiColor('xterm') {
        	    sh 'VERSION=v1.7.0 curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist'
 		  }
-		  sh "go run pkg/build/upload/app.go dist/scm-cli.json scoop-bucket main bucket/scm-cli.json \"Update scoop scm-cli to ${releaseVersion}\""
-		  sh "go run pkg/build/upload/app.go dist/scm-cli.rb homebrew-tap master Formula/scm-cli.rb \"Update brew scm-cli to ${releaseVersion}\""
+		  sh "go run pkg/build/upload/github/app.go dist/scm-cli.json scoop-bucket main bucket/scm-cli.json \"Update scoop scm-cli to ${releaseVersion}\""
+		  sh "go run pkg/build/upload/scmm/app.go dist/scm-cli.rb homebrew-tap master Formula/scm-cli.rb \"Update brew scm-cli to ${releaseVersion}\""
 		  sh "go run pkg/build/descriptor/app.go dist > dist/release.yaml"
-		  sh "go run pkg/build/upload/app.go dist/release.yaml website master content/cli/releases/${hyphenatedReleaseVersion}.yaml \"Release cli version ${releaseVersion}\""
+		  sh "go run pkg/build/upload/scmm/app.go dist/release.yaml website master content/cli/releases/${hyphenatedReleaseVersion}.yaml \"Release cli version ${releaseVersion}\""
         }
       }
 	}
@@ -123,7 +123,8 @@ void withPublishEnvironment(Closure<Void> closure) {
     usernamePassword(credentialsId: 'gpg_packages-scm-manager-org-credentials', usernameVariable: 'GPG_KEY_ID', passwordVariable: 'GPG_PASSWORD'),
     usernamePassword(credentialsId: 'gpg_packages-scm-manager-org-credentials', usernameVariable: 'NFPM_RPM_KEY_ID', passwordVariable: 'NFPM_RPM_PASSPHRASE'),
     usernamePassword(credentialsId: 'gpg_packages-scm-manager-org-credentials', usernameVariable: 'NFPM_DEB_KEY_ID', passwordVariable: 'NFPM_DEB_PASSPHRASE'),
-    usernamePassword(credentialsId: 'SCM-Manager', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_API_TOKEN'),
+    usernamePassword(credentialsId: 'SCM-Manager', usernameVariable: 'SCMM_USERNAME', passwordVariable: 'SCMM_PASSWORD'),
+    usernamePassword(credentialsId: 'cesmarvin', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_API_TOKEN'),
   ]) {
       sh 'gpg --no-tty --batch --yes --import $GPG_KEY_PATH'
   	  closure.call()
