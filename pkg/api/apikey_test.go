@@ -26,6 +26,16 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, "api-secret", apiKey)
 }
 
+func TestCreateWithError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+	}))
+	defer server.Close()
+
+	_, err := Create(server.URL, "arthur", "secret", "test-key")
+	assert.Contains(t, err.Error(), "Please make sure that API keys are enabled in the global configuration")
+}
+
 func TestRemoveIfKeyNotExist(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "Bearer api-token", r.Header.Get("Authorization"))

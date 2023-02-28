@@ -32,8 +32,16 @@ func Create(serverUrl string, username string, password string, apiKeyName strin
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
 	}(res.Body)
-	if res.StatusCode >= 400 {
-		return "", fmt.Errorf("could not create new api key on server. Server returned status code: %d", res.StatusCode)
+	if res.StatusCode == 401 {
+		return "", createLoginError("Login failed. Please check username and password.", res)
+	} else if res.StatusCode == 404 {
+		return "", createLoginError("Failed to create API key. Please make sure that API keys are enabled in the global configuration.", res)
+	} else if res.StatusCode == 403 {
+		return "", createLoginError("You do not have the permission to use API keys. This is mandatory for the usage of the cli client.", res)
+	} else if res.StatusCode == 409 {
+		return "", createLoginError("There already seems to be an api key for the CLI client issued for this user/system. Please delete this api key manually on your scm server and retry to log in via the CLI.", res)
+	} else if res.StatusCode >= 400 {
+		return "", createLoginError("Could not create new api key on server.", res)
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -62,4 +70,8 @@ func Remove(serverUrl string, apiKey string, apiKeyName string) error {
 		return fmt.Errorf("could not remove api key. Server returned status code: %d", res.StatusCode)
 	}
 	return nil
+}
+
+func createLoginError(message string, res *http.Response) error {
+	return fmt.Errorf("Server returned status code: %d\n%v", res.StatusCode, message)
 }
