@@ -14,7 +14,7 @@ pipeline {
 
   environment {
     HOME = "${env.WORKSPACE}"
-   	LANGUAGE = "en"
+       LANGUAGE = "en"
   }
 
   stages {
@@ -25,14 +25,14 @@ pipeline {
       }
       steps {
         // fetch all remotes from origin
-        sh 'git checkout ${env.BRANCH_NAME}'
+        sh "git checkout ${env.BRANCH_NAME}"
         sh 'git config --replace-all "remote.origin.fetch" "+refs/heads/*:refs/remotes/origin/*"'
-        sh 'git fetch --all'
+        authGit 'SCM-Manager', 'fetch --all'
 
-		// checkout, reset and merge
-		sh 'git checkout main'
-		sh 'git reset --hard origin/main'
-		sh "git merge --ff-only ${env.BRANCH_NAME}"
+        // checkout, reset and merge
+        sh 'git checkout main'
+        sh 'git reset --hard origin/main'
+        sh "git merge --ff-only ${env.BRANCH_NAME}"
 
         // set tag
         tag releaseVersion
@@ -63,7 +63,7 @@ pipeline {
       }
     }
 
-	stage('Publish') {
+    stage('Publish') {
       when {
         branch pattern: 'release/*', comparator: 'GLOB'
         expression { return isBuildSuccess() }
@@ -76,31 +76,29 @@ pipeline {
       }
       steps {
         withPublishEnvironment {
-		  ansiColor('xterm') {
-       	    sh 'VERSION=v1.7.0 curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist'
-		  }
-		  sh "go run pkg/build/upload/github/app.go dist/scm-cli.json scoop-bucket main bucket/scm-cli.json \"Update scoop scm-cli to ${releaseVersion}\""
-		  sh "go run pkg/build/upload/scmm/app.go dist/scm-cli.rb homebrew-tap master Formula/scm-cli.rb \"Update brew scm-cli to ${releaseVersion}\""
-		  sh "go run pkg/build/descriptor/app.go dist > dist/release.yaml"
-		  sh "go run pkg/build/upload/scmm/app.go dist/release.yaml website master content/cli/releases/${hyphenatedReleaseVersion}.yaml \"Release cli version ${releaseVersion}\""
+          sh 'export VERSION=v1.7.0 && curl -sL https://git.io/goreleaser | bash -s -- release --rm-dist'
+          sh "go run pkg/build/upload/github/app.go dist/scm-cli.json scoop-bucket main bucket/scm-cli.json \"Update scoop scm-cli to ${releaseVersion}\""
+          sh "go run pkg/build/upload/scmm/app.go dist/scm-cli.rb homebrew-tap master Formula/scm-cli.rb \"Update brew scm-cli to ${releaseVersion}\""
+          sh "go run pkg/build/descriptor/app.go dist > dist/release.yaml"
+          sh "go run pkg/build/upload/scmm/app.go dist/release.yaml website master content/cli/releases/${hyphenatedReleaseVersion}.yaml \"Release cli version ${releaseVersion}\""
         }
       }
-	}
+    }
 
     stage('Update Repository') {
-	  when {
-		branch pattern: 'release/*', comparator: 'GLOB'
-	  }
-	  steps {
-		// merge main in to develop
-		sh 'git checkout develop'
-		sh 'git merge main'
+      when {
+        branch pattern: 'release/*', comparator: 'GLOB'
+      }
+      steps {
+        // merge main in to develop
+        sh 'git checkout develop'
+        sh 'git merge main'
 
-		// push changes back to remote repository
-		authGit 'SCM-Manager', 'push origin main --tags'
-		authGit 'SCM-Manager', 'push origin develop --tags'
-		authGit 'SCM-Manager', "push origin :${env.BRANCH_NAME}"
-	  }
+        // push changes back to remote repository
+        authGit 'SCM-Manager', 'push origin main --tags'
+        authGit 'SCM-Manager', 'push origin develop --tags'
+        authGit 'SCM-Manager', "push origin :${env.BRANCH_NAME}"
+      }
     }
   }
 
@@ -127,7 +125,7 @@ void withPublishEnvironment(Closure<Void> closure) {
     usernamePassword(credentialsId: 'cesmarvin', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_API_TOKEN'),
   ]) {
       sh 'gpg --no-tty --batch --yes --import $GPG_KEY_PATH'
-  	  closure.call()
+      closure.call()
   }
 }
 
